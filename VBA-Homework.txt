@@ -1,0 +1,167 @@
+Sub UniqueTickerAndGreatestIncreaseDecrease()
+    Dim Ticker As String
+    Dim VolumeTotal As Double
+    Dim BeginDate As Double
+    Dim EndDate As Double
+    Dim OpenPrice As Double
+    Dim ClosePrice As Double
+    Dim Summary_Table_Row As Integer
+    Dim LastRow As Long
+    Dim i As Long
+    Dim Summary_Table_Final_Row_Count As Integer
+    Dim MaxIncrease As Double
+    Dim MaxIncreaseTicker As String
+    Dim MaxDecrease As Double
+    Dim MaxDecreaseTicker As String
+    Dim MaxVolume As Double
+    Dim MaxVolumeTicker As String
+    
+'---------------------------------------------------------------------------------------------------------------------------------------------------------------
+'MAIN SECTION OF HOMEWORK: Create summary table of UNIQUE Stock Tickers containing each ticker's opening & closing values, annual % change, and total volume
+'---------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+'Identify final row of data and set that row number as LastRow variable
+Range("A1").Select
+LastRow = ActiveCell.End(xlDown).Row
+
+'Set initial values for BeginDate & EndDate, making them arbitrarily high & low, respectively. Also set initial value for Summary_Table_Row variable.
+BeginDate = 9999999999#
+EndDate = 1
+Summary_Table_Row = 2
+
+'Print headers in summary table
+Range("J1") = "Ticker"
+Range("K1") = "Open Price"
+Range("L1") = "Close Price"
+Range("M1") = "Volume Total"
+Range("N1") = "Yearly Change"
+Range("O1") = "Percent Change"
+
+'Loop through all Ticker data.
+For i = 2 To LastRow
+
+    ' Check if we are still within the same Ticker, if it is not...
+    If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+        'Set the Ticker
+        Ticker = Cells(i, 1).Value
+        'Add to the Volume Total
+        VolumeTotal = VolumeTotal + Cells(i, 7).Value
+        'If BeginDate is older, update BeginDate and OpenPrice
+        If Cells(i, 2).Value < BeginDate Then
+            BeginDate = Cells(i, 2).Value
+            OpenPrice = Cells(i, 3).Value
+            Else
+        End If
+        'If EndDate is newer, update EndDate and ClosePrice
+        If Cells(i, 2).Value > EndDate Then
+            EndDate = Cells(i, 2).Value
+            ClosePrice = Cells(i, 6).Value
+            Else
+        End If
+        ' Print the Ticker in the Summary Table
+        Range("J" & Summary_Table_Row).Value = Ticker
+        ' Print the Open Price in the Summary Table
+        Range("K" & Summary_Table_Row).Value = OpenPrice
+        ' Print the Close Price in the Summary Table
+        Range("L" & Summary_Table_Row).Value = ClosePrice
+        ' Print the Volume Total in the Summary Table
+        Range("M" & Summary_Table_Row).Value = VolumeTotal
+        ' Pring Yearly Change in Summary Table
+        Range("N" & Summary_Table_Row).Value = (ClosePrice - OpenPrice)
+            'Color yearly change red if negative, green if positive
+            If Range("N" & Summary_Table_Row).Value < 0 Then
+                Range("N" & Summary_Table_Row).Interior.Color = vbRed
+            ElseIf Range("N" & Summary_Table_Row).Value > 0 Then
+                Range("N" & Summary_Table_Row).Interior.Color = vbGreen
+            End If
+        ' Pring Percent Change in Summary Table
+        If OpenPrice = 0 Then
+            Range("O" & Summary_Table_Row).Value = 1
+            Else: Range("O" & Summary_Table_Row).Value = (ClosePrice - OpenPrice) / OpenPrice
+        End If
+        ' Add one to the summary table row
+        Summary_Table_Row = Summary_Table_Row + 1
+        ' Reset the Volume Total
+        VolumeTotal = 0
+        'Reset BeginDate & EndDate
+        BeginDate = 9999999999#
+        EndDate = 1
+
+    ' If the cell immediately following a row is the same Ticker...
+    Else
+        'Add to the Volume Total
+        VolumeTotal = VolumeTotal + Cells(i, 7).Value
+        'If BeginDate is older, update BeginDate and OpenPrice
+        If Cells(i, 2).Value < BeginDate Then
+            BeginDate = Cells(i, 2).Value
+            OpenPrice = Cells(i, 3).Value
+            Else
+        End If
+        'If EndDate is newer, update EndDate and ClosePrice
+        If Cells(i, 2).Value > EndDate Then
+            EndDate = Cells(i, 2).Value
+            ClosePrice = Cells(i, 6).Value
+            Else
+        End If
+        
+    End If
+
+Next i
+
+'---------------------------------------------------------------------------------------------------------------------------------------------------------
+'CHALLENGE SECTION OF HOMEWORK: Create summary table containing the tickers with the greatest % increase, greatest % decrease, and greatest volume.
+'---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+'Print headers in Greatest Increase/Decrease summary table
+Range("R1") = "Ticker"
+Range("S1") = "Value"
+Range("Q2") = "Greatest % Increase"
+Range("Q3") = "Greatest % Decrease"
+Range("Q4") = "Greatest Total Volume"
+
+'Identify final row of Summary Table data and set that row number as Summary_Table_Final_Row_Count variable. Also set initial value for Summary_Table_Row variable.
+Range("J1").Select
+Summary_Table_Final_Row_Count = ActiveCell.End(xlDown).Row
+Summary_Table_Row = 2
+
+'Set initial values for MaxIncrease, MaxDecrease, & Max Volume:, making them arbitrarily low/high/low, respectively.
+MaxIncrease = -9999999999999#
+MaxDecrease = 9999999999999#
+MaxVolume = -9999999999999#
+
+'Loop through all Ticker data.
+For i = 2 To Summary_Table_Final_Row_Count
+
+        'If % Change is less than MaxDecrease, update MaxDecrease % and Ticker.
+        If Cells(i, 15).Value < MaxDecrease Then
+            MaxDecrease = Cells(i, 15).Value
+            MaxDecreaseTicker = Cells(i, 10).Value
+            Else
+        End If
+        
+        'If % Change is greater than MaxIncrease, update MaxIncrease % and Ticker.
+        If Cells(i, 15).Value > MaxIncrease Then
+            MaxIncrease = Cells(i, 15).Value
+            MaxIncreaseTicker = Cells(i, 10).Value
+            Else
+        End If
+        
+        'If Volume is greater than MaxVolume, update MaxVolume and Ticker.
+        If Cells(i, 13).Value > MaxVolume Then
+            MaxVolume = Cells(i, 13).Value
+            MaxVolumeTicker = Cells(i, 10).Value
+            Else
+        End If
+
+Next i
+
+'Print MaxIncrease, MaxDecrease, and MaxVolume in summary table
+Range("R2") = MaxIncreaseTicker
+Range("S2") = MaxIncrease
+Range("R3") = MaxDecreaseTicker
+Range("S3") = MaxDecrease
+Range("R4") = MaxVolumeTicker
+Range("S4") = MaxVolume
+
+End Sub
+
